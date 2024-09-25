@@ -9,67 +9,67 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = PokeTorneio
 build_property.RootNamespace = PokeTorneio
-build_property.ProjectDir = C:\Users\brnat\source\repos\PokeTorneio\PokeTorneio\
+build_property.ProjectDir = C:\Users\Antonio Carlos\Documents\GitHub\PokeTorneio\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 8.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\Users\brnat\source\repos\PokeTorneio\PokeTorneio
+build_property.MSBuildProjectDirectory = C:\Users\Antonio Carlos\Documents\GitHub\PokeTorneio
 build_property._RazorSourceGeneratorDebug = 
 
-[C:/Users/brnat/source/repos/PokeTorneio/PokeTorneio/PokeTorneio/Areas/Identity/Pages/_ViewStart.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UG9rZVRvcm5laW9cQXJlYXNcSWRlbnRpdHlcUGFnZXNcX1ZpZXdTdGFydC5jc2h0bWw=
+[C:/Users/Antonio Carlos/Documents/GitHub/PokeTorneio/Areas/Identity/Pages/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSWRlbnRpdHlcUGFnZXNcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/brnat/source/repos/PokeTorneio/PokeTorneio/Views/Home/Index.cshtml]
+[C:/Users/Antonio Carlos/Documents/GitHub/PokeTorneio/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/brnat/source/repos/PokeTorneio/PokeTorneio/Views/Home/Privacy.cshtml]
+[C:/Users/Antonio Carlos/Documents/GitHub/PokeTorneio/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/brnat/source/repos/PokeTorneio/PokeTorneio/Views/Shared/Error.cshtml]
+[C:/Users/Antonio Carlos/Documents/GitHub/PokeTorneio/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/brnat/source/repos/PokeTorneio/PokeTorneio/Views/Shared/modal.cshtml]
+[C:/Users/Antonio Carlos/Documents/GitHub/PokeTorneio/Views/Shared/modal.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXG1vZGFsLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/brnat/source/repos/PokeTorneio/PokeTorneio/Views/Shared/_LoginPartial.cshtml]
+[C:/Users/Antonio Carlos/Documents/GitHub/PokeTorneio/Views/Shared/_LoginPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Mb2dpblBhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/brnat/source/repos/PokeTorneio/PokeTorneio/Views/Shared/_ValidationScriptsPartial.cshtml]
+[C:/Users/Antonio Carlos/Documents/GitHub/PokeTorneio/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/brnat/source/repos/PokeTorneio/PokeTorneio/Views/Torneio/AdicionarJogadores.cshtml]
+[C:/Users/Antonio Carlos/Documents/GitHub/PokeTorneio/Views/Torneio/AdicionarJogadores.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVG9ybmVpb1xBZGljaW9uYXJKb2dhZG9yZXMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/brnat/source/repos/PokeTorneio/PokeTorneio/Views/Torneio/Criar.cshtml]
+[C:/Users/Antonio Carlos/Documents/GitHub/PokeTorneio/Views/Torneio/Criar.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVG9ybmVpb1xDcmlhci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/brnat/source/repos/PokeTorneio/PokeTorneio/Views/Torneio/Detalhes.cshtml]
+[C:/Users/Antonio Carlos/Documents/GitHub/PokeTorneio/Views/Torneio/Detalhes.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVG9ybmVpb1xEZXRhbGhlcy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/brnat/source/repos/PokeTorneio/PokeTorneio/Views/Torneio/Index.cshtml]
+[C:/Users/Antonio Carlos/Documents/GitHub/PokeTorneio/Views/Torneio/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVG9ybmVpb1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/brnat/source/repos/PokeTorneio/PokeTorneio/Views/_ViewImports.cshtml]
+[C:/Users/Antonio Carlos/Documents/GitHub/PokeTorneio/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/brnat/source/repos/PokeTorneio/PokeTorneio/Views/_ViewStart.cshtml]
+[C:/Users/Antonio Carlos/Documents/GitHub/PokeTorneio/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/brnat/source/repos/PokeTorneio/PokeTorneio/Views/Shared/_Layout.cshtml]
+[C:/Users/Antonio Carlos/Documents/GitHub/PokeTorneio/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-sppm96wedc

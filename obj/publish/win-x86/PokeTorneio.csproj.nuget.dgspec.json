@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\brnat\\source\\repos\\PokeTorneio\\PokeTorneio\\PokeTorneio.csproj": {}
+    "C:\\Users\\Antonio Carlos\\Documents\\GitHub\\PokeTorneio\\PokeTorneio.csproj": {}
   },
   "projects": {
-    "C:\\Users\\brnat\\source\\repos\\PokeTorneio\\PokeTorneio\\PokeTorneio.csproj": {
+    "C:\\Users\\Antonio Carlos\\Documents\\GitHub\\PokeTorneio\\PokeTorneio.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\brnat\\source\\repos\\PokeTorneio\\PokeTorneio\\PokeTorneio.csproj",
+        "projectUniqueName": "C:\\Users\\Antonio Carlos\\Documents\\GitHub\\PokeTorneio\\PokeTorneio.csproj",
         "projectName": "PokeTorneio",
-        "projectPath": "C:\\Users\\brnat\\source\\repos\\PokeTorneio\\PokeTorneio\\PokeTorneio.csproj",
-        "packagesPath": "C:\\Users\\brnat\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\brnat\\source\\repos\\PokeTorneio\\PokeTorneio\\obj\\publish\\win-x86\\",
+        "projectPath": "C:\\Users\\Antonio Carlos\\Documents\\GitHub\\PokeTorneio\\PokeTorneio.csproj",
+        "packagesPath": "C:\\Users\\Antonio Carlos\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Antonio Carlos\\Documents\\GitHub\\PokeTorneio\\obj\\publish\\win-x86\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\brnat\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Antonio Carlos\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -104,7 +104,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.302/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400/PortableRuntimeIdentifierGraph.json"
         }
       },
       "runtimes": {
