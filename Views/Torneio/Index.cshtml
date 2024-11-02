@@ -5,7 +5,6 @@
     Criar Torneio
 </a>
 <div class="row">
-   
     @foreach (var torneio in Model)
     {
         <div class="col-md-4 mb-4">
@@ -16,6 +15,9 @@
                         <strong>Data:</strong> @torneio.DataInicio.ToString("dd/MM/yyyy") <br />
                     </p>
                     <a asp-action="Detalhes" asp-route-id="@torneio.Id" class="btn btn-success">Ver Detalhes</a>
+@*                     <form asp-action="Excluir" asp-route-id="@torneio.Id" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-danger">Excluir</button>
+                    </form> *@
                 </div>
             </div>
         </div>

@@ -29,8 +29,11 @@ namespace PokeTorneio.Services
 
         // Cálculo
         int CalcularNumeroDeRodadas(int numeroDeJogadores);
+        void SalvarAlteracoesRodada(int rodadaId, List<Partida> partidas);  
+        void EditarNomeJogador(Guid jogadorId, string novoNome);
+        void RemoverJogador(int torneioId, Guid jogadorId);
+        void ExcluirTorneio(int torneioId);
 
-        // Métodos para Partidas Equilibradas
-        bool JogadoresJaSeEnfrentaram(Guid jogador1Id, Guid jogador2Id);
+
     }
 }

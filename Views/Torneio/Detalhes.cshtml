@@ -11,17 +11,66 @@
 </div>
 
 <h3>Jogadores:</h3>
-<ol class="list-group mb-4">
-    @foreach (var jogador in Model.Jogadores.OrderByDescending(j => j.Pontos).Select((j, index) => new { Jogador = j, Posição = index + 1 }))
-    {
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-            <span>@jogador.Posição. posição: @jogador.Jogador.Nome</span>
-            <span>
-                Pontos: @jogador.Jogador.Pontos (Vitórias: @jogador.Jogador.Vitorias, Empates: @jogador.Jogador.Empates, Derrotas: @jogador.Jogador.Derrotas)
-            </span>
-        </li>
-    }
-</ol>
+<div class="table-responsive">
+    <table class="table table-striped table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Posição</th>
+                <th>Nome</th>
+                <th>Pontos</th>
+                <th>W/E/D</th>
+                <th>OW (%)</th>
+                <th>OOW (%)</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var jogador in Model.Jogadores
+            .OrderByDescending(j => j.Pontos)
+            .ThenByDescending(j => j.OW)
+            .ThenByDescending(j => j.OOW)     
+            .Select((j, index) => new { Jogador = j, Posição = index + 1 }))
+            {
+                <tr>
+                    <td>@jogador.Posição</td>
+                    <td>@jogador.Jogador.Nome</td>
+                    <td>@jogador.Jogador.Pontos</td>
+                    <td>@jogador.Jogador.Vitorias / @jogador.Jogador.Empates / @jogador.Jogador.Derrotas</td>
+                    <td>@jogador.Jogador.OW.ToString("F2")%</td>
+                    <td>@jogador.Jogador.OOW.ToString("F2")%</td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#modalEditarJogador-@jogador.Jogador.Id">Editar</button>
+                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalRemoverJogador-@jogador.Jogador.Id">Remover</button>
+                        
+                        <div class="modal fade" id="modalRemoverJogador-@jogador.Jogador.Id" tabindex="-1" aria-labelledby="modalRemoverJogadorLabel-@jogador.Jogador.Id" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="modalRemoverJogadorLabel-@jogador.Jogador.Id">Remover Jogador</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Tem certeza que deseja remover o jogador <strong>@jogador.Jogador.Nome</strong>?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <form asp-action="RemoverJogador" asp-route-id="@jogador.Jogador.Id" method="post">
+                                            <input type="hidden" name="torneioId" value="@Model.Id" />
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            <button type="submit" class="btn btn-danger">Remover</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+
 
 <div class="text-center mb-4">
     <a asp-controller="Torneio" asp-action="AdicionarJogadores" asp-route-id="@Model.Id" class="btn btn-primary">Adicionar Jogadores</a>
@@ -31,23 +80,53 @@
 @foreach (var rodada in Model.Rodadas)
 {
     <div class="rodada mb-4">
-        <h4 class="bg-light p-3">Rodada @rodada.NumeroRodada</h4>
-        <table class="table table-bordered">
+        <h4 class="bg-light p-3 d-flex justify-content-between align-items-center">
+            Rodada @rodada.NumeroRodada
+
+            @if (rodada.Partidas.All(partida => partida.Resultado == null))
+            {
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAlterarJogadoresRodada-@rodada.NumeroRodada">
+                    Alterar Matchs
+                </button>
+            }             
+            
+            
+        </h4>
+        <table class="table table-bordered table-responsive">
             <thead class="table-dark">
                 <tr>
                     <th>Jogador 1</th>
                     <th>Jogador 2</th>
-                    <th>Resultado</th>
-                    <th>Ações</th>
+                    <th style="width = 50%">Resultado</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var partida in rodada.Partidas)
                 {
                     <tr>
-                        <td>@partida.Jogador1.Nome</td>
-                        <td>@partida.Jogador2.Nome</td>
+                        <td class="align-content-center">@partida.Jogador1.Nome</td>
+                        <td class="align-content-center">@partida.Jogador2.Nome</td>
                         <td>
+                            @if (partida.Resultado == null)
+                            {
+                                <form asp-action="RegistrarResultado" method="post" class="d-flex flex-column flex-sm-row align-items-start mb-3">
+                                    <input type="hidden" name="partidaId" value="@partida.Id" />
+
+                                    <select name="vencedorId" class="form-select me-2 mb-2 mb-sm-0" required>
+                                        <option selected value="">Selecione o vencedor</option>
+                                        <option value="@Guid.Empty">Empate</option>
+                                        <option value="@partida.Jogador1Id">@partida.Jogador1.Nome venceu</option>
+                                        <option value="@partida.Jogador2Id">@partida.Jogador2.Nome venceu</option>
+                                    </select>
+
+                                    <select name="resultadoMelhorDe3" asp-items="ViewBag.ResultadosMelhorDe3" class="form-control me-2 mb-2 mb-sm-0" required>
+                                        <option value="">Selecione o Resultado</option>
+                                    </select>
+
+                                    <button type="submit" class="btn btn-success w-100">Registrar</button>
+                                </form>
+
+                            }
                             @if (partida.Resultado == 0)
                             {
                                 <span class="text-warning">Empate</span>
@@ -60,20 +139,6 @@
                             {
                                 <span class="text-danger">@partida.Jogador2.Nome venceu (@partida.ResultadoMelhorDe3.GetDescription())</span>
                             }
-                        </td>
-                        <td>
-                            <form asp-action="RegistrarResultado" method="post" class="d-flex">
-                                <input type="hidden" name="partidaId" value="@partida.Id" />
-                                <select name="resultadoMelhorDe3" asp-items="ViewBag.ResultadosMelhorDe3" class="form-control">
-                                    <option value="">Selecione o Resultado</option>
-                                </select>
-                                <select name="vencedorId" class="form-select me-2" required>
-                                    <option value="@Guid.Empty">Empate</option>
-                                    <option value="@partida.Jogador1Id">@partida.Jogador1.Nome venceu</option>
-                                    <option value="@partida.Jogador2Id">@partida.Jogador2.Nome venceu</option>
-                                </select>
-                                <button type="submit" class="btn btn-success">Registrar</button>
-                            </form>
                         </td>
                     </tr>
                 }
@@ -94,8 +159,8 @@
     </div>
 }
 
-<div class="d-flex justify-content-between mb-4">
-    <form asp-action="IniciarRodada" asp-route-id="@Model.Id" method="post">
+<div class="d-flex flex-column flex-md-row justify-content-between mb-4">
+    <form asp-action="IniciarRodada" asp-route-id="@Model.Id" method="post" class="mb-2 mb-md-0">
         <button type="submit" class="btn btn-warning">Iniciar Próxima Rodada</button>
     </form>
     <form asp-action="FinalizarTorneio" asp-route-id="@Model.Id" method="post">
@@ -106,12 +171,123 @@
 <!-- Contagem Regressiva -->
 <div class="text-center mb-4">
     <h3>Duração da Partida</h3>
-    <div id="cronometro">@Model.Duracao.TotalHours:00:00</div>
+    <div id="cronometro" class="h4">@Model.Duracao.TotalHours:00:00</div>
     <button id="iniciarBtn" class="btn btn-success" onclick="iniciarContagemRegressiva()">Iniciar</button>
     <button id="pausarBtn" class="btn btn-warning" onclick="pausarContagemRegressiva()" disabled>Pausar</button>
     <button id="continuarBtn" class="btn btn-info" onclick="continuarContagemRegressiva()" disabled>Continuar</button>
     <button id="pararBtn" class="btn btn-danger" onclick="pararContagemRegressiva()" disabled>Parar</button>
 </div>
+
+@foreach (var rodada in Model.Rodadas)
+{
+    if (rodada.Partidas.All(partida => partida.Resultado == null))
+    {
+    <div class="modal fade" id="modalAlterarJogadoresRodada-@rodada.NumeroRodada" tabindex="-1" aria-labelledby="modalAlterarJogadoresRodadaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalAlterarJogadoresRodadaLabel">Alterar Jogadores da Rodada @rodada.NumeroRodada</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <form asp-action="SalvarAlteracoesRodada" method="post">
+                        <input type="hidden" name="rodadaId" value="@rodada.Id" />
+
+                        @foreach (var partida in rodada.Partidas)
+                        {
+                            var jogador1Id = partida.Jogador1Id;
+                            var jogador2Id = partida.Jogador2Id;
+
+                            <div class="mb-3 p-3 border rounded">
+                                <h6>Partida: @partida.Jogador1.Nome vs @(partida.Jogador2?.Nome ?? "Nenhum")</h6>
+
+                                <input type="hidden" name="Partidas[@rodada.Partidas.IndexOf(partida)].Id" value="@partida.Id" />
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Jogador 1</label>
+                                        <select name="Partidas[@rodada.Partidas.IndexOf(partida)].Jogador1Id" class="form-select" required>
+                                            @foreach (var jogador in Model.Jogadores)
+                                            {
+                                                if (jogador.Id == jogador1Id)
+                                                {
+                                                    <option value="@jogador.Id" selected>
+                                                        @jogador.Nome
+                                                    </option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@jogador.Id">
+                                                        @jogador.Nome
+                                                    </option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Jogador 2</label>
+                                        <select name="Partidas[@rodada.Partidas.IndexOf(partida)].Jogador2Id" class="form-select">
+                                            <option value="">Nenhum (Bye)</option>
+                                            @foreach (var jogador in Model.Jogadores)
+                                            {
+                                                if (jogador.Id == jogador2Id)
+                                                {
+                                                    <option value="@jogador.Id" selected>
+                                                        @jogador.Nome
+                                                    </option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@jogador.Id">
+                                                        @jogador.Nome
+                                                    </option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        </div>
+    }
+}
+@foreach (var jogador in Model.Jogadores)
+{
+    <!-- Modal para editar nome do jogador -->
+    <div class="modal fade" id="modalEditarJogador-@jogador.Id" tabindex="-1" aria-labelledby="modalEditarJogadorLabel-@jogador.Id" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEditarJogadorLabel-@jogador.Id">Editar Nome do Jogador</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <form asp-action="EditarJogador" method="post">
+                        <input type="hidden" name="jogadorId" value="@jogador.Id" />
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <div class="mb-3">
+                            <label for="nome" class="form-label">Nome</label>
+                            <input type="text" class="form-control" name="Nome" value="@jogador.Nome" required />
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Salvar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 
 <script>
     let tempoTotal = @Model.Duracao.TotalSeconds;

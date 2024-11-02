@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PokeTorneio.Data;
 using PokeTorneio.Enums;
@@ -14,6 +15,36 @@ namespace PokeTorneio.Services
         public TorneioService(ApplicationDbContext context)
         {
             _context = context;
+        }
+        public void ExcluirTorneio(int torneioId)
+        {
+            var torneio = _context.Torneios.Find(torneioId);
+            if (torneio != null)
+            {
+                _context.Torneios.Remove(torneio);
+                _context.SaveChanges();
+            }
+            else
+            {
+                throw new Exception("Torneio não encontrado.");
+            }
+        }
+        public void RemoverJogador(int torneioId, Guid jogadorId)
+        {
+            var torneio = _context.Torneios.Include(t => t.Jogadores).FirstOrDefault(t => t.Id == torneioId);
+            if (torneio == null)
+            {
+                throw new Exception("Torneio não encontrado.");
+            }
+
+            var jogador = torneio.Jogadores.FirstOrDefault(j => j.Id == jogadorId);
+            if (jogador == null)
+            {
+                throw new Exception("Jogador não encontrado.");
+            }
+
+            torneio.Jogadores.Remove(jogador);
+            _context.SaveChanges();
         }
 
         // Listagem de Torneios
@@ -61,17 +92,24 @@ namespace PokeTorneio.Services
             }
         }
 
-
-        // Finalização do Torneio
         public void FinalizarTorneio(int torneioId)
         {
             var torneio = ObterTorneioPorId(torneioId);
             if (torneio != null)
             {
                 torneio.IsFinalizado = true;
-                _context.SaveChanges();
+
+                foreach (var jogador in torneio.Jogadores)
+                {
+                    jogador.CalcularOW(); 
+
+                    jogador.CalcularOOW();
+                }
+
+                _context.SaveChanges(); // Salva as alterações no banco de dados
             }
         }
+
 
         // Lógica de Vencedor
         public Jogador CalcularVencedor(Torneio torneio)
@@ -84,11 +122,59 @@ namespace PokeTorneio.Services
 
             if (jogadoresComVitorias.Count > 1 && jogadoresComVitorias[0].Vitorias == jogadoresComVitorias[1].Vitorias)
             {
-                return CompararDesempenho(jogadoresComVitorias[0], jogadoresComVitorias[1]);
+                return CompararDesempenho(jogadoresComVitorias[0], jogadoresComVitorias[1], torneio);
             }
 
             return jogadoresComVitorias.FirstOrDefault();
         }
+
+        private Jogador CompararDesempenho(Jogador j1, Jogador j2, Torneio torneio)
+        {
+            var oponentWinJ1 = CalcularOponentWin(j1, torneio);
+            var oponentWinJ2 = CalcularOponentWin(j2, torneio);
+
+            if (oponentWinJ1 > oponentWinJ2)
+                return j1;
+            else if (oponentWinJ2 > oponentWinJ1)
+                return j2;
+
+            var oponentOponentWinJ1 = CalcularOponentOponentWin(j1, torneio);
+            var oponentOponentWinJ2 = CalcularOponentOponentWin(j2, torneio);
+
+            return oponentOponentWinJ1 > oponentOponentWinJ2 ? j1 : j2;
+        }
+        private int CalcularOponentWin(Jogador jogador, Torneio torneio)
+        {
+            var partidasVencidas = torneio.Rodadas
+                .SelectMany(r => r.Partidas)
+                .Where(p => p.VencedorId == jogador.Id)
+                .ToList();
+
+            return partidasVencidas.Sum(p => p.Jogador1Id == jogador.Id ? p.Jogador2.Pontos : p.Jogador1.Pontos);
+        }
+
+        private int CalcularOponentOponentWin(Jogador jogador, Torneio torneio)
+        {
+            var partidasJogadas = torneio.Rodadas
+                .SelectMany(r => r.Partidas)
+                .Where(p => p.Jogador1Id == jogador.Id || p.Jogador2Id == jogador.Id)
+                .ToList();
+
+            int oponentOponentWin = 0;
+
+            foreach (var partida in partidasJogadas)
+            {
+                var oponente = partida.Jogador1Id == jogador.Id ? partida.Jogador2 : partida.Jogador1;
+
+                oponentOponentWin += torneio.Rodadas
+                    .SelectMany(r => r.Partidas)
+                    .Where(p => p.Jogador1Id == oponente.Id || p.Jogador2Id == oponente.Id)
+                    .Sum(p => p.Jogador1Id == oponente.Id ? p.Jogador2.Pontos : p.Jogador1.Pontos);
+            }
+
+            return oponentOponentWin;
+        }
+
 
         private Jogador CompararDesempenho(Jogador j1, Jogador j2)
         {
@@ -169,6 +255,7 @@ namespace PokeTorneio.Services
 
 
         // Método para iniciar a rodada
+        // Método para iniciar a rodada
         public Rodada IniciarRodada(int torneioId)
         {
             var torneio = ObterTorneioPorId(torneioId);
@@ -182,26 +269,37 @@ namespace PokeTorneio.Services
 
             // Verifica quantas rodadas devem ser criadas com base no número de jogadores
             int numRodadas = CalcularNumeroDeRodadas(torneio.Jogadores.Count);
-            if (rodada.NumeroRodada > numRodadas) return null; // Não cria mais rodadas do que o necessário
+
+            // Antes de criar as partidas, calcula OW e OOW se não for a primeira rodada
+            if (rodada.NumeroRodada > 1)
+            {
+                foreach (var jogador in torneio.Jogadores)
+                {
+                    jogador.CalcularOW();
+                    jogador.CalcularOOW();
+                }
+                _context.SaveChanges(); // Salva as alterações após calcular OW e OOW
+            }
 
             CriarPartidas(rodada, torneio);
             torneio.AdicionarRodada(rodada);
             _context.SaveChanges();
             return rodada;
         }
+
         private void CriarPartidas(Rodada rodada, Torneio torneio)
         {
-            var jogadores = torneio.Jogadores.ToList(); // Captura todos os jogadores
+            var jogadores = torneio.Jogadores.ToList();
             var partidas = new List<Partida>();
             var jogadoresBye = new List<Jogador>();
 
             // Verifica se é a primeira rodada
             if (rodada.NumeroRodada == 1)
             {
-                // Criar partidas para a primeira rodada
-                for (int i = 0; i < jogadores.Count; i += 2) // Incrementa de 2 em 2 para emparelhar
+                // Lógica para criar as partidas da primeira rodada (sem OW e OOW)
+                for (int i = 0; i < jogadores.Count; i += 2)
                 {
-                    if (i + 1 < jogadores.Count) // Verifica se há um próximo jogador
+                    if (i + 1 < jogadores.Count)
                     {
                         var partida = new Partida
                         {
@@ -213,12 +311,10 @@ namespace PokeTorneio.Services
                             ResultadoMelhorDe3 = null,
                             VencedorId = null
                         };
-
                         partidas.Add(partida);
                     }
                     else
                     {
-                        // Se o número de jogadores é ímpar, registra o jogador como bye
                         jogadoresBye.Add(jogadores[i]);
                     }
                 }
@@ -226,25 +322,21 @@ namespace PokeTorneio.Services
                 // Gerenciar bye
                 if (jogadoresBye.Count > 0)
                 {
-                    // Escolhe aleatoriamente o jogador que receberá o bye na primeira rodada
                     var jogadorBye = jogadoresBye[new Random().Next(jogadoresBye.Count)];
                     jogadorBye.RegistrarVitoria();
                     jogadorBye.TeveBye = true;
                 }
 
-                // Adiciona todas as partidas à rodada
                 rodada.Partidas.AddRange(partidas);
-                return; // Sai da função após tratar a primeira rodada
+                return;
             }
 
             // Lógica para rodadas subsequentes
-
             var jogadoresEmparelhados = new HashSet<Guid>();
-
             var partidasAnteriores = _context.Partidas.Where(t => t.TorneioId == torneio.Id).ToList();
 
-            // Ordena jogadores por "teve bye" e, em seguida, por pontos
-            jogadores = jogadores.OrderByDescending(j => j.TeveBye).ThenByDescending(j => j.Pontos).ToList();
+            // Ordena jogadores por pontos e "teve bye"
+            jogadores = jogadores.OrderByDescending(j => j.TeveBye).ThenByDescending(j => j.Pontos).ToList();           
 
             // Emparelhamento de jogadores
             for (int i = 0; i < jogadores.Count; i++)
@@ -256,14 +348,12 @@ namespace PokeTorneio.Services
 
                 bool emparelhado = false;
 
-                for (int j = i + 1; j < jogadores.Count; j++) // Começa do próximo jogador
+                for (int j = i + 1; j < jogadores.Count; j++)
                 {
                     var jogador2 = jogadores[j];
 
-                    // Ignora se já emparelhou ou se é o mesmo jogador
                     if (jogadoresEmparelhados.Contains(jogador2.Id) || jogador1.Id == jogador2.Id) continue;
 
-                    // Verifica se já se enfrentaram
                     if (!JaSeEnfrentaram(jogador1, jogador2, partidasAnteriores))
                     {
                         var partida = new Partida
@@ -281,30 +371,26 @@ namespace PokeTorneio.Services
                         jogadoresEmparelhados.Add(jogador1.Id);
                         jogadoresEmparelhados.Add(jogador2.Id);
                         emparelhado = true;
-                        break; // Sair do loop após emparelhamento
+                        break;
                     }
                 }
 
-                // Se não encontrou adversário e o total de jogadores é ímpar
                 if (!emparelhado && jogadores.Count % 2 != 0)
                 {
-                    jogadoresBye.Add(jogador1); // Adiciona à lista de bye
+                    jogadoresBye.Add(jogador1);
                 }
             }
 
-            // Gerenciar bye
             if (jogadoresBye.Count > 0)
             {
-                var jogadorBye = jogadoresBye.First(); // Escolhe o jogador que ficou de bye
-                jogadorBye.RegistrarVitoria(); // Registrar a vitória do jogador que recebeu bye
-                jogadorBye.TeveBye = true; // Marcar que o jogador teve bye
+                var jogadorBye = jogadoresBye.First();
+                jogadorBye.RegistrarVitoria();
+                jogadorBye.TeveBye = true;
             }
 
-            // Adiciona as partidas à rodada
             rodada.Partidas.AddRange(partidas);
-
-
         }
+
 
         // Método para verificar se dois jogadores já se enfrentaram
         private bool JaSeEnfrentaram(Jogador jogador1, Jogador jogador2, List<Partida> partidas)
@@ -317,11 +403,6 @@ namespace PokeTorneio.Services
 
 
 
-        // Método para verificar se os jogadores já se enfrentaram
-        public bool JogadoresJaSeEnfrentaram(Guid jogador1Id, Guid jogador2Id) =>
-            _context.Partidas.Any(p =>
-                (p.Jogador1Id == jogador1Id && p.Jogador2Id == jogador2Id) ||
-                (p.Jogador1Id == jogador2Id && p.Jogador2Id == jogador1Id));
 
         // Método para obter uma rodada por ID
         public Rodada ObterPorRodadaId(int rodadaId) =>
@@ -364,5 +445,39 @@ namespace PokeTorneio.Services
                     throw new ArgumentOutOfRangeException(nameof(resultado), "Resultado inválido.");
             }
         }
+
+        public void SalvarAlteracoesRodada(int rodadaId, List<Partida> partidas)
+        {
+            var rodada = ObterPorRodadaId(rodadaId);
+
+            if (rodada != null)
+            {
+                foreach (var partida in partidas)
+                {
+                    partida.RodadaId = rodadaId;
+                    partida.TorneioId = rodada.TorneioId;
+
+                    var partidaExistente = rodada.Partidas.FirstOrDefault(p => p.Id == partida.Id);
+                    
+                        partidaExistente.Jogador1Id = partida.Jogador1Id;
+                        partidaExistente.Jogador2Id = partida.Jogador2Id;                    
+                }
+
+                _context.SaveChanges();
+            }
+        }
+
+        public void EditarNomeJogador(Guid jogadorId, string novoNome)
+        {
+            var jogador = _context.Jogadores.Find(jogadorId);
+            if (jogador == null)
+            {
+                throw new Exception("Jogador não encontrado");
+            }
+
+            jogador.Nome = novoNome;
+            _context.SaveChanges();
+        }
+
     }
 }
