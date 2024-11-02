@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PokeTorneio.Enums;
 using PokeTorneio.Models;
 using PokeTorneio.Services;
@@ -58,6 +59,32 @@ namespace PokeTorneio.Controllers
 
             return View(torneio);
         }
+        public IActionResult EditarRodada(int rodadaId)
+        {
+            var rodada = _torneioService.ObterPorRodadaId(rodadaId);
+            if (rodada == null)
+            {
+                return NotFound();
+            }           
+
+            return View(rodada); 
+        }
+
+        [HttpPost]
+        public IActionResult SalvarAlteracoesRodada(int rodadaId, List<Partida> partidas)
+        {
+            var rodada = _torneioService.ObterPorRodadaId(rodadaId);
+
+            if (rodada != null && partidas != null && partidas.Any())
+            {
+                _torneioService.SalvarAlteracoesRodada(rodadaId, partidas);
+            }
+
+            return RedirectToAction("Detalhes", new { id = rodada.TorneioId });
+        }
+
+
+
 
 
         // POST: /Torneio/Finalizar/5
@@ -67,13 +94,45 @@ namespace PokeTorneio.Controllers
             _torneioService.FinalizarTorneio(id);
             return RedirectToAction("Detalhes", new { id });
         }
-
+        
         // GET: /Torneio/Criar
         public IActionResult Criar()
         {
             ViewBag.ResultadosMelhorDe3 = EnumHelper.GetEnumSelectList<ResultadoMelhorDe3>();
 
             return View(new Torneio());
+        }
+        [HttpPost]
+        public IActionResult RemoverJogador(Guid id, int torneioId)
+        {
+            try
+            {
+                _torneioService.RemoverJogador(torneioId, id);
+                TempData["SuccessMessage"] = "Jogador removido com sucesso!";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
+
+            return RedirectToAction("Detalhes", new { id = torneioId });
+        }
+
+        [HttpPost]
+        public IActionResult EditarJogador(Guid jogadorId, string nome, int id)
+        {
+            try
+            {
+                _torneioService.EditarNomeJogador(jogadorId, nome);
+                // Sucesso ao editar nome
+                return RedirectToAction("Detalhes", new { id });
+            }
+            catch (Exception ex)
+            {
+                // Lida com o erro e apresenta feedback ao usuário
+                TempData["Erro"] = ex.Message;
+                return RedirectToAction("Detalhes", new { id });
+            }
         }
 
         // POST: /Torneio/Criar
